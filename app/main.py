@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from routers import task, user
+from routers import u_router, t_router
 
 app = FastAPI()
 
@@ -8,5 +8,5 @@ app = FastAPI()
 async def welcome():
     return {"message": "Welcome to Taskmanager"}
 
-app.include_router(task.t_router)
-app.include_router(user.u_router)
+app.include_router(t_router)
+app.include_router(u_router)
