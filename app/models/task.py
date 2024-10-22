@@ -18,4 +18,5 @@ class Task(Base):
 
 
 from sqlalchemy.schema import CreateTable
+
 print(CreateTable(Task.__table__))
