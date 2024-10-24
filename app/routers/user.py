@@ -3,7 +3,7 @@ from app.models import *
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 from app.backend.db_depends import get_db
-from typing import Annotated
+from typing import Annotated, List
 from app.models import User
 from app.schemas import CreateUser, UpdateUser
 from sqlalchemy import insert, select, update, delete
@@ -55,8 +55,18 @@ async def update_user(user_id: int, user: UpdateUser, db: Annotated[Session, Dep
 @u_router.delete('/delete/{user_id}')
 async def delete_user(user_id: int, db: Annotated[Session, Depends(get_db)]):
     del_user = delete(User).where(User.id == user_id)
+    db.execute(delete(Task).where(Task.user_id == user_id))
+    db.execute(delete(User).where(User.id == user_id))
     result = db.execute(del_user)
     db.commit()
     if result.rowcount == 0:
         raise HTTPException(status_code=404, detail="User  was not found")
     return {'status_code': status.HTTP_204_NO_CONTENT, 'transaction': 'User  deleted successfully'}
+
+
+@u_router.get('/{user_id}/tasks', response_model=List[Task])
+async def tasks_by_user_id(user_id: int, db: Session = Depends(get_db)):
+    tasks = db.execute(select(Task).where(Task.user_id == user_id)).scalars().all()
+    if not tasks:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No tasks found for this user")
+    return tasks

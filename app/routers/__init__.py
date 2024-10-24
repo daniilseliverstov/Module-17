@@ -1,2 +1,1 @@
-from .user import u_router
-from .task import t_router
+from app.routers import user, task
